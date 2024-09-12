@@ -7,9 +7,14 @@ from sentence_transformers import SentenceTransformer
 import os
 import json
 from langchain.embeddings.base import Embeddings
+from fastapi import FastAPI, Request
 
-# Set up Streamlit page
-st.set_page_config(page_title="Document Genie", layout="wide")
+app = FastAPI()
+
+@app.post("/receive")
+async def receive_data(request: Request):
+    data = await request.json()
+    received_text = data.get("text", "")
 
 # Set your OpenRouter API key here
 api_key = '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'
@@ -19,6 +24,10 @@ st.markdown("""## RAG CHATBOT """)
 # Initialize chat history in session state
 if 'chat_history' not in st.session_state:
     st.session_state['chat_history'] = []
+
+# Extract user string from URL
+query_params = st.experimental_get_query_params()
+user_string = query_params.get("str", [""])[0]
 
 # Function to get text from a web page
 def get_web_page_text(url):
@@ -41,17 +50,12 @@ def get_text_chunks(text):
 
 # Function to create and save vector store using SentenceTransformers
 def get_vector_store(text_chunks):
-    # Use SentenceTransformers to generate embeddings
-    model = SentenceTransformer('all-MiniLM-L6-v2')  # You can replace with another model if you prefer
-    embeddings = model.encode(text_chunks)
-    
-    # Use FAISS to store and search embeddings
+    embeddings = SentenceTransformerEmbeddings(model_name='all-MiniLM-L6-v2')
     vector_store = FAISS.from_texts(text_chunks, embeddings)
     vector_store.save_local("faiss_index")
 
 # Function to get the conversational chain using OpenAI via OpenRouter
 def get_conversational_chain():
-    # Using OpenRouter to interact with OpenAI models
     def generate_response(prompt):
         headers = {
             "Authorization": f"Bearer {api_key}",
@@ -59,7 +63,7 @@ def get_conversational_chain():
         }
         url = "https://openrouter.ai/api/v1/completions"
         data = {
-            "model": "gpt-4",  # Or use 'gpt-3.5-turbo' if preferred
+            "model": "gpt-4",
             "prompt": prompt,
             "temperature": 0.3
         }
@@ -77,110 +81,113 @@ class SentenceTransformerEmbeddings(Embeddings):
 
     def embed_query(self, text):
         return self.model.encode([text])[0]
-    
-# Function to create and save vector store using SentenceTransformer
-def get_vector_store(text_chunks):
-    # Use the custom embeddings class
-    embeddings = SentenceTransformerEmbeddings(model_name='all-MiniLM-L6-v2')
-    
-    # Use FAISS to store and search embeddings
-    vector_store = FAISS.from_texts(text_chunks, embeddings)
-    vector_store.save_local("faiss_index")
 
 # Function to handle user input and manage chat history
 def user_input(user_question):
-    # Use the custom embeddings class
     embeddings = SentenceTransformerEmbeddings(model_name='all-MiniLM-L6-v2')
-
-    # Load the FAISS vector store and search for similar documents
     new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
     docs = new_db.similarity_search(user_question)
-
-    # Combine the relevant document contexts
     context = "\n\n".join([doc.page_content for doc in docs])
     
-    # Get the conversational chain (ChatGPT via OpenRouter)
     chain = get_conversational_chain()
-    
-    # Prepare the prompt for the model
     full_prompt = f"Context: {context}\nQuestion: {user_question}"
     response = chain(full_prompt)
     
-    # Prepare and save chat entry
     chat_entry = {
         "question": user_question,
         "response": response
     }
     
-    # Update chat history in session state
     st.session_state['chat_history'].append(chat_entry)
     save_chat_history(st.session_state['chat_history'])
     
-    # Display the response
     st.write("Reply: ", response)
+    st.markdown(
+    f"""
+    <style>
+    .button {{
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        color: white;
+        background-color: #4CAF50;
+        border: none;
+        border-radius: 5px;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }}
+
+    .button:hover {{
+        background-color: #45a049;
+    }}
+    </style>
+    <a href="http://localhost:8501" target="_self">
+        <div class="button">Type another question</div>
+    </a>
+    """,
+    unsafe_allow_html=True
+)
 
 # Functions to handle chat history
 def load_chat_history():
-    """Load chat history from a JSON file."""
     if os.path.exists('chat_history.json'):
         with open('chat_history.json', 'r') as f:
             return json.load(f)
     return []
 
 def save_chat_history(history):
-    """Save chat history to a JSON file."""
     with open('chat_history.json', 'w') as f:
         json.dump(history, f, indent=4)
 
-# Function to clear chat history
 def clear_chat_history():
-    """Clear the chat history."""
     if os.path.exists('chat_history.json'):
         os.remove('chat_history.json')
     st.session_state['chat_history'] = []
 
 # Main function
-def main():
-    st.header("Ask me Anything....")
+st.header("Ask me Anything....")
 
-    # Input for user question (Moved above chat history)
-    user_question = st.text_input("Ask a Question from the Web Page Content", key="user_question")
+# Input for user question with default value from URL if present
+user_question = st.text_input(
+    "Ask a Question from the Web Page Content (Click on the question and press enter)",
+    value=user_string,  # Default value set to user_string
+    key="user_question"
+)
 
-    # Process user input after displaying chat history
-    if user_question and api_key:  # Ensure API key and user question are provided
-        user_input(user_question)
-        # Display the response of the latest question right after the input box
-        latest_entry = st.session_state['chat_history'][-1]
-        
+if user_question and api_key:
+    user_input(user_question)
+    latest_entry = st.session_state['chat_history'][-1]
+    
+    st.write("---")
+
+if st.button("Clear Chat History"):
+    clear_chat_history()
+    st.success("Chat history cleared!")
+
+if not st.session_state['chat_history']:
+    st.session_state['chat_history'] = load_chat_history()
+
+if st.session_state['chat_history'][:-1]:
+    st.subheader("Chat History")
+    for entry in reversed(st.session_state['chat_history'][:-1]):
+        st.write(f"**Question:** {entry['question']}")
+        st.write(f"**Response:** {entry['response']}")
         st.write("---")
 
-    # Clear chat history button above the chat history
-    if st.button("Clear Chat History"):
-        clear_chat_history()
-        st.success("Chat history cleared!")
+with st.sidebar:
+    st.title("Menu:")
+    url = st.text_input("Enter the URL of the Web Page", key="url_input")
+    if st.button("Submit & Process", key="process_button") and url and api_key:
+        with st.spinner("Processing..."):
+            web_text = get_web_page_text(url)
+            if web_text:
+                text_chunks = get_text_chunks(web_text)
+                get_vector_store(text_chunks)
+                st.success("Done")
 
-    # Load existing chat history at the start
-    if not st.session_state['chat_history']:
-        st.session_state['chat_history'] = load_chat_history()
-
-    # Display chat history (excluding the latest question and response)
-    if st.session_state['chat_history'][:-1]:
-        st.subheader("Chat History")
-        for entry in reversed(st.session_state['chat_history'][:-1]):
-            st.write(f"**Question:** {entry['question']}")
-            st.write(f"**Response:** {entry['response']}")
-            st.write("---")
-
-    with st.sidebar:
-        st.title("Menu:")
-        url = st.text_input("Enter the URL of the Web Page", key="url_input")
-        if st.button("Submit & Process", key="process_button") and url and api_key:  # Check if URL and API key are provided before processing
-            with st.spinner("Processing..."):
-                web_text = get_web_page_text(url)
-                if web_text:
-                    text_chunks = get_text_chunks(web_text)
-                    get_vector_store(text_chunks)
-                    st.success("Done")
-
-if __name__ == "__main__":
-    main()
+# Display the user string if it exists
+if user_string:
+    st.write(f"User redirected from Page 1: {user_string}")

@@ -5,6 +5,8 @@ from keras.models import load_model # type: ignore
 from cvzone.HandTrackingModule import HandDetector
 from PIL import Image
 import math
+import requests
+
 
 # Initialize the Hand Detector
 hd = HandDetector(maxHands=1)
@@ -48,10 +50,10 @@ class Application:
 
     def distance(self,x,y):
         return math.sqrt(((x[0] - y[0]) ** 2) + ((x[1] - y[1]) ** 2))
-    
+
+        
     def video_stream(self):
-        if st.button('hello'):
-            st.write('yo')
+        
         # Layout for Streamlit
         col1, col2 = st.columns([1.5,1])
 
@@ -65,6 +67,7 @@ class Application:
         
         predicted_char_placeholder = st.empty()  # Placeholder for predicted character
         current_string_placeholder = st.empty()  # Placeholder for the current string
+        button1 = st.empty()
 
         while True:
             ret, frame = self.vs.read()
@@ -129,15 +132,42 @@ class Application:
                                     self.predict(res)
                                     predicted_char_placeholder.write(f"Predicted character: {self.current_symbol}")
                                     current_string_placeholder.write(f"Current string: {self.str}")
+                                    button1.markdown(
+                                                    f"""
+                                                    <style>
+                                                    .button {{
+                                                        display: inline-block;
+                                                        padding: 10px 20px;
+                                                        font-size: 16px;
+                                                        font-weight: bold;
+                                                        color: white;
+                                                        background-color: #4CAF50;
+                                                        border: none;
+                                                        border-radius: 5px;
+                                                        text-align: center;
+                                                        text-decoration: none;
+                                                        cursor: pointer;
+                                                        transition: background-color 0.3s ease;
+                                                    }}
+
+                                                    .button:hover {{
+                                                        background-color: #45a049;
+                                                    }}
+                                                    </style>
+                                                    <a href="http://localhost:8502/?str={self.str.strip()}" target="_self">
+                                                        <div class="button">Process question.</div>
+                                                    </a>
+                                                    """,
+                                                    unsafe_allow_html=True
+                                                )
                                 except:
                                     pass
-                        processed_feed.image(white, channels="RGB", width=300)
-                        
+                        processed_feed.image(white, channels="RGB", width=300) 
             except:
                 pass
+            
+        
                 # Update the processed frame (replace the previous frame)
-
-
 
     def predict(self, test_image):
         white = test_image.reshape(1, 400, 400, 3)
@@ -153,8 +183,8 @@ class Application:
 
         # condition for [Aemnst]
         l = [[5, 2], [5, 3], [3, 5], [3, 6], [3, 0], [3, 2], [6, 4], [6, 1], [6, 2], [6, 6], [6, 7], [6, 0], [6, 5],
-             [4, 1], [1, 0], [1, 1], [6, 3], [1, 6], [5, 6], [5, 1], [4, 5], [1, 4], [1, 5], [2, 0], [2, 6], [4, 6],
-             [1, 0], [5, 7], [1, 6], [6, 1], [7, 6], [2, 5], [7, 1], [5, 4], [7, 0], [7, 5], [7, 2]]
+            [4, 1], [1, 0], [1, 1], [6, 3], [1, 6], [5, 6], [5, 1], [4, 5], [1, 4], [1, 5], [2, 0], [2, 6], [4, 6],
+            [1, 0], [5, 7], [1, 6], [6, 1], [7, 6], [2, 5], [7, 1], [5, 4], [7, 0], [7, 5], [7, 2]]
         if pl in l:
             if (self.pts[6][1] < self.pts[8][1] and self.pts[10][1] < self.pts[12][1] and self.pts[14][1] < self.pts[16][1] and self.pts[18][1] < self.pts[20][
                 1]):
@@ -360,7 +390,7 @@ class Application:
 
         # con for [b][pqz]
         l = [[5, 0], [5, 1], [5, 4], [5, 5], [5, 6], [6, 1], [7, 6], [0, 2], [7, 1], [7, 4], [6, 6], [7, 2], [5, 0],
-             [6, 3], [6, 4], [7, 5], [7, 2]]
+            [6, 3], [6, 4], [7, 5], [7, 2]]
         pl = [ch1, ch2]
         if pl in l:
             if (self.pts[6][1] > self.pts[8][1] and self.pts[10][1] > self.pts[12][1] and self.pts[14][1] > self.pts[16][1] and self.pts[18][1] > self.pts[20][
@@ -370,7 +400,7 @@ class Application:
 
         # con for [f][pqz]
         l = [[6, 1], [6, 0], [0, 3], [6, 4], [2, 2], [0, 6], [6, 2], [7, 6], [4, 6], [4, 1], [4, 2], [0, 2], [7, 1],
-             [7, 4], [6, 6], [7, 2], [7, 5], [7, 2]]
+            [7, 4], [6, 6], [7, 2], [7, 5], [7, 2]]
         pl = [ch1, ch2]
         if pl in l:
             if (self.pts[6][1] < self.pts[8][1] and self.pts[10][1] > self.pts[12][1] and self.pts[14][1] > self.pts[16][1] and
@@ -393,7 +423,7 @@ class Application:
         pl = [ch1, ch2]
         if pl in l:
             if ((self.pts[6][1] > self.pts[8][1] and self.pts[10][1] < self.pts[12][1] and self.pts[14][1] < self.pts[16][1] and
-                 self.pts[18][1] < self.pts[20][1]) and (self.pts[2][0] < self.pts[0][0]) and self.pts[4][1] > self.pts[14][1]):
+                self.pts[18][1] < self.pts[20][1]) and (self.pts[2][0] < self.pts[0][0]) and self.pts[4][1] > self.pts[14][1]):
                 ch1 = 1
                 print("111113")
 
@@ -410,7 +440,7 @@ class Application:
         pl = [ch1, ch2]
         if pl in l:
             if ((self.pts[6][1] > self.pts[8][1] and self.pts[10][1] < self.pts[12][1] and self.pts[14][1] < self.pts[16][1] and
-                 self.pts[18][1] < self.pts[20][1]) and (self.pts[2][0] < self.pts[0][0]) and self.pts[14][1] < self.pts[4][1]):
+                self.pts[18][1] < self.pts[20][1]) and (self.pts[2][0] < self.pts[0][0]) and self.pts[14][1] < self.pts[4][1]):
                 ch1 = 1
                 print("1111mmm3")
 
@@ -426,7 +456,7 @@ class Application:
         pl = [ch1, ch2]
         if pl in l:
             if ((self.pts[6][1] < self.pts[8][1] and self.pts[10][1] < self.pts[12][1] and self.pts[14][1] < self.pts[16][1] and
-                 self.pts[18][1] > self.pts[20][1])):
+                self.pts[18][1] > self.pts[20][1])):
                 ch1 = 1
                 print("111114")
 
@@ -436,7 +466,7 @@ class Application:
         if pl in l:
             if (self.pts[4][0] < self.pts[5][0] + 15) and (
             (self.pts[6][1] < self.pts[8][1] and self.pts[10][1] < self.pts[12][1] and self.pts[14][1] < self.pts[16][1] and
-             self.pts[18][1] > self.pts[20][1])):
+            self.pts[18][1] > self.pts[20][1])):
                 ch1 = 7
                 print("111114lll;;p")
 
@@ -445,7 +475,7 @@ class Application:
         pl = [ch1, ch2]
         if pl in l:
             if ((self.pts[6][1] > self.pts[8][1] and self.pts[10][1] > self.pts[12][1] and self.pts[14][1] < self.pts[16][1] and
-                 self.pts[18][1] < self.pts[20][1])) and self.pts[4][1] > self.pts[14][1]:
+                self.pts[18][1] < self.pts[20][1])) and self.pts[4][1] > self.pts[14][1]:
                 ch1 = 1
                 print("111115")
 
@@ -604,12 +634,15 @@ class Application:
         self.vs.release()
         cv2.destroyAllWindows()
 
+
 # Streamlit page setup
 st.title("Sign Language to Text Conversion")
 
 # Create an instance of the Application class
 app = Application()
-   
+
 
 if st.button("Restart Camera"):
+    
+
     app.video_stream()
