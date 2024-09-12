@@ -5,7 +5,6 @@ from keras.models import load_model # type: ignore
 from cvzone.HandTrackingModule import HandDetector
 from PIL import Image
 import math
-import requests
 
 
 # Initialize the Hand Detector
@@ -19,7 +18,7 @@ st.set_page_config(
 # Load the model
 @st.cache_resource
 def load_sign_model():
-    return load_model('C:/Users/divya/OneDrive/Desktop/DJ/Hackathon/AAA/Sign-Language-To-Text-and-Speech-Conversion/cnn8grps_rad1_model.h5')
+    return load_model('cnn8grps_rad1_model.h5')
 
 model = load_sign_model()
 offset = 29
