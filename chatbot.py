@@ -7,14 +7,6 @@ from sentence_transformers import SentenceTransformer
 import os
 import json
 from langchain.embeddings.base import Embeddings
-from fastapi import FastAPI, Request
-
-app = FastAPI()
-
-@app.post("/receive")
-async def receive_data(request: Request):
-    data = await request.json()
-    received_text = data.get("text", "")
 
 # Set your OpenRouter API key here
 api_key = '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'
@@ -24,7 +16,7 @@ st.markdown("""## RAG CHATBOT """)
 # Initialize chat history in session state
 if 'chat_history' not in st.session_state:
     st.session_state['chat_history'] = []
-
+    
 # Extract user string from URL
 try:
     user_string = st.query_params['str']
@@ -148,33 +140,49 @@ def clear_chat_history():
     if os.path.exists('chat_history.json'):
         os.remove('chat_history.json')
     st.session_state['chat_history'] = []
-with st.spinner("Loading..."):
-    # Main function
-    st.header("Ask me Anything....")
-
     
-    with st.sidebar:
-        st.title("Menu:")
+# function to edit the current link
+def load_link():
+    if os.path.exists('link.json'):
+        with open('link.json', 'r') as f:
+            return json.load(f)
+    return []
+
+def save_link(link):
+    with open('link.json','w') as f:
+        json.dump(link,f,indent=4)
+
+# Main function
+st.header("Ask me Anything....")
+
+
+with st.sidebar:
+    st.title("Menu:")
+    link = load_link()[0]
+    if link:
+        url = st.text_input("Enter the URL of the Web Page", key="url_input", value=link)
+    else:
         url = st.text_input("Enter the URL of the Web Page", key="url_input")
-        if st.button("Submit & Process", key="process_button") and url and api_key:
-            with st.spinner("Processing..."):
-                web_text = get_web_page_text(url)
-                if web_text:
-                    text_chunks = get_text_chunks(web_text)
-                    get_vector_store(text_chunks)
-                    st.success("Done")
+    if st.button("Submit & Process", key="process_button") and url and api_key:
+        with st.spinner("Processing..."):
+            web_text = get_web_page_text(url)
+            if web_text:
+                text_chunks = get_text_chunks(web_text)
+                get_vector_store(text_chunks)
+                st.success("Done")
+                save_link(url)
 
-
+with st.spinner("Loading..."):
     # Input for user question with default value from URL if present
     try:
         user_question = st.text_input(
-            "Ask a Question from the Web Page Content (Click on the question and press enter)",
+            "Ask a Question from the Web Page Content",
             value=user_string,  # Default value set to user_string
             key="user_question"
         )
     except:
         user_question = st.text_input(
-            "Ask a Question from the Web Page Content (Click on the question and press enter)",
+            "Ask a Question from the Web Page Content",
             key="user_question"
             )
     if user_question and api_key:

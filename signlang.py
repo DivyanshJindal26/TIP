@@ -23,8 +23,6 @@ def load_sign_model():
 model = load_sign_model()
 offset = 29
 
-
-
 # Application class adapted for Streamlit
 class Application:
     def __init__(self):
@@ -82,86 +80,89 @@ class Application:
             camera_feed.image(frame_rgb, channels="RGB",width=400)
             try:
                 if hands:
-                        hand = hands[0][0]
-                        x, y, w, h = hand['bbox']
-                        hand_img = frame_copy[y - offset:y + h + offset, x - offset:x + w + offset]
-                        
-                        # Prepare a blank white background
-                        white = np.ones((400, 400, 3), np.uint8) * 255
-                        
-                        handz = hd2.findHands(hand_img, draw=False, flipType=True)
-                        if handz:
-                                hand = handz[0][0]
-                                self.pts = hand['lmList']
-                                # x1,y1,w1,h1=hand['bbox']
+                    hand = hands[0][0]
+                    x, y, w, h = hand['bbox']
+                    hand_img = frame_copy[y - offset:y + h + offset, x - offset:x + w + offset]
+                    
+                    # Prepare a blank white background
+                    white = np.ones((400, 400, 3), np.uint8) * 255
+                    
+                    handz = hd2.findHands(hand_img, draw=False, flipType=True)
+                    if handz:
+                            hand = handz[0][0]
+                            self.pts = hand['lmList']
+                            # x1,y1,w1,h1=hand['bbox']
 
-                                os = ((400 - w) // 2) - 15
-                                os1 = ((400 - h) // 2) - 15
-                                for t in range(0, 4, 1):
-                                    cv2.line(white, (self.pts[t][0] + os, self.pts[t][1] + os1), (self.pts[t + 1][0] + os, self.pts[t + 1][1] + os1),
-                                            (0, 255, 0), 3)
-                                for t in range(5, 8, 1):
-                                    cv2.line(white, (self.pts[t][0] + os, self.pts[t][1] + os1), (self.pts[t + 1][0] + os, self.pts[t + 1][1] + os1),
-                                            (0, 255, 0), 3)
-                                for t in range(9, 12, 1):
-                                    cv2.line(white, (self.pts[t][0] + os, self.pts[t][1] + os1), (self.pts[t + 1][0] + os, self.pts[t + 1][1] + os1),
-                                            (0, 255, 0), 3)
-                                for t in range(13, 16, 1):
-                                    cv2.line(white, (self.pts[t][0] + os, self.pts[t][1] + os1), (self.pts[t + 1][0] + os, self.pts[t + 1][1] + os1),
-                                            (0, 255, 0), 3)
-                                for t in range(17, 20, 1):
-                                    cv2.line(white, (self.pts[t][0] + os, self.pts[t][1] + os1), (self.pts[t + 1][0] + os, self.pts[t + 1][1] + os1),
-                                            (0, 255, 0), 3)
-                                cv2.line(white, (self.pts[5][0] + os, self.pts[5][1] + os1), (self.pts[9][0] + os, self.pts[9][1] + os1), (0, 255, 0),
-                                        3)
-                                cv2.line(white, (self.pts[9][0] + os, self.pts[9][1] + os1), (self.pts[13][0] + os, self.pts[13][1] + os1), (0, 255, 0),
-                                        3)
-                                cv2.line(white, (self.pts[13][0] + os, self.pts[13][1] + os1), (self.pts[17][0] + os, self.pts[17][1] + os1),
+                            os = ((400 - w) // 2) - 15
+                            os1 = ((400 - h) // 2) - 15
+                            for t in range(0, 4, 1):
+                                cv2.line(white, (self.pts[t][0] + os, self.pts[t][1] + os1), (self.pts[t + 1][0] + os, self.pts[t + 1][1] + os1),
                                         (0, 255, 0), 3)
-                                cv2.line(white, (self.pts[0][0] + os, self.pts[0][1] + os1), (self.pts[5][0] + os, self.pts[5][1] + os1), (0, 255, 0),
-                                        3)
-                                cv2.line(white, (self.pts[0][0] + os, self.pts[0][1] + os1), (self.pts[17][0] + os, self.pts[17][1] + os1), (0, 255, 0),
-                                        3)
+                            for t in range(5, 8, 1):
+                                cv2.line(white, (self.pts[t][0] + os, self.pts[t][1] + os1), (self.pts[t + 1][0] + os, self.pts[t + 1][1] + os1),
+                                        (0, 255, 0), 3)
+                            for t in range(9, 12, 1):
+                                cv2.line(white, (self.pts[t][0] + os, self.pts[t][1] + os1), (self.pts[t + 1][0] + os, self.pts[t + 1][1] + os1),
+                                        (0, 255, 0), 3)
+                            for t in range(13, 16, 1):
+                                cv2.line(white, (self.pts[t][0] + os, self.pts[t][1] + os1), (self.pts[t + 1][0] + os, self.pts[t + 1][1] + os1),
+                                        (0, 255, 0), 3)
+                            for t in range(17, 20, 1):
+                                cv2.line(white, (self.pts[t][0] + os, self.pts[t][1] + os1), (self.pts[t + 1][0] + os, self.pts[t + 1][1] + os1),
+                                        (0, 255, 0), 3)
+                            cv2.line(white, (self.pts[5][0] + os, self.pts[5][1] + os1), (self.pts[9][0] + os, self.pts[9][1] + os1), (0, 255, 0),
+                                    3)
+                            cv2.line(white, (self.pts[9][0] + os, self.pts[9][1] + os1), (self.pts[13][0] + os, self.pts[13][1] + os1), (0, 255, 0),
+                                    3)
+                            cv2.line(white, (self.pts[13][0] + os, self.pts[13][1] + os1), (self.pts[17][0] + os, self.pts[17][1] + os1),
+                                    (0, 255, 0), 3)
+                            cv2.line(white, (self.pts[0][0] + os, self.pts[0][1] + os1), (self.pts[5][0] + os, self.pts[5][1] + os1), (0, 255, 0),
+                                    3)
+                            cv2.line(white, (self.pts[0][0] + os, self.pts[0][1] + os1), (self.pts[17][0] + os, self.pts[17][1] + os1), (0, 255, 0),
+                                    3)
 
-                                for i in range(21):
-                                    cv2.circle(white, (self.pts[i][0] + os, self.pts[i][1] + os1), 2, (0, 0, 255), 1)
+                            for i in range(21):
+                                cv2.circle(white, (self.pts[i][0] + os, self.pts[i][1] + os1), 2, (0, 0, 255), 1)
 
-                                res=white
-                                try:
-                                    self.predict(res)
-                                    predicted_char_placeholder.write(f"Predicted character: {self.current_symbol}")
-                                    current_string_placeholder.write(f"Current string: {self.str}")
+                            res=white
+                            try:
+                                self.predict(res)
+                                predicted_char_placeholder.write(f"Predicted character: {self.current_symbol}")
+                                current_string_placeholder.write(f"Current string: {self.str}")
+                                if self.str:
+                                    self.vs.release()
+                                    cv2.destroyAllWindows()
                                     button1.markdown(
-                                                    f"""
-                                                    <style>
-                                                    .button {{
-                                                        display: inline-block;
-                                                        padding: 10px 20px;
-                                                        font-size: 16px;
-                                                        font-weight: bold;
-                                                        color: white;
-                                                        background-color: #4CAF50;
-                                                        border: none;
-                                                        border-radius: 5px;
-                                                        text-align: center;
-                                                        text-decoration: none;
-                                                        cursor: pointer;
-                                                        transition: background-color 0.3s ease;
-                                                    }}
+                                                f"""
+                                                <style>
+                                                .button {{
+                                                    display: inline-block;
+                                                    padding: 10px 20px;
+                                                    font-size: 16px;
+                                                    font-weight: bold;
+                                                    color: white;
+                                                    background-color: #4CAF50;
+                                                    border: none;
+                                                    border-radius: 5px;
+                                                    text-align: center;
+                                                    text-decoration: none;
+                                                    cursor: pointer;
+                                                    transition: background-color 0.3s ease;
+                                                }}
 
-                                                    .button:hover {{
-                                                        background-color: #45a049;
-                                                    }}
-                                                    </style>
-                                                    <a href="http://localhost:8502/?str={self.str.strip()}" target="_self">
-                                                        <div class="button">Process question.</div>
-                                                    </a>
-                                                    """,
-                                                    unsafe_allow_html=True
-                                                )
-                                except:
-                                    pass
-                        processed_feed.image(white, channels="RGB", width=300) 
+                                                .button:hover {{
+                                                    background-color: #45a049;
+                                                }}
+                                                </style>
+                                                <a href="http://localhost:8502/?str={self.str.strip().lower()}" target="_self">
+                                                    <div class="button">Process question.</div>
+                                                </a>
+                                                """,
+                                                unsafe_allow_html=True
+                                            )
+                            except:
+                                pass
+                    processed_feed.image(white, channels="RGB", width=300) 
             except:
                 pass
             
@@ -639,9 +640,8 @@ st.title("Sign Language to Text Conversion")
 
 # Create an instance of the Application class
 app = Application()
-
-
-if st.button("Restart Camera"):
-    
-
+if st.button('Restart Camera'):
     app.video_stream()
+    
+app.video_stream()
+    
