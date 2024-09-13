@@ -26,8 +26,10 @@ if 'chat_history' not in st.session_state:
     st.session_state['chat_history'] = []
 
 # Extract user string from URL
-query_params = st.experimental_get_query_params()
-user_string = query_params.get("str", [""])[0]
+try:
+    user_string = st.query_params['str']
+except:
+    pass
 
 # Function to get text from a web page
 def get_web_page_text(url):
@@ -146,48 +148,51 @@ def clear_chat_history():
     if os.path.exists('chat_history.json'):
         os.remove('chat_history.json')
     st.session_state['chat_history'] = []
+with st.spinner("Loading..."):
+    # Main function
+    st.header("Ask me Anything....")
 
-# Main function
-st.header("Ask me Anything....")
-
-# Input for user question with default value from URL if present
-user_question = st.text_input(
-    "Ask a Question from the Web Page Content (Click on the question and press enter)",
-    value=user_string,  # Default value set to user_string
-    key="user_question"
-)
-
-if user_question and api_key:
-    user_input(user_question)
-    latest_entry = st.session_state['chat_history'][-1]
     
-    st.write("---")
+    with st.sidebar:
+        st.title("Menu:")
+        url = st.text_input("Enter the URL of the Web Page", key="url_input")
+        if st.button("Submit & Process", key="process_button") and url and api_key:
+            with st.spinner("Processing..."):
+                web_text = get_web_page_text(url)
+                if web_text:
+                    text_chunks = get_text_chunks(web_text)
+                    get_vector_store(text_chunks)
+                    st.success("Done")
 
-if st.button("Clear Chat History"):
-    clear_chat_history()
-    st.success("Chat history cleared!")
 
-if not st.session_state['chat_history']:
-    st.session_state['chat_history'] = load_chat_history()
-
-if st.session_state['chat_history'][:-1]:
-    st.subheader("Chat History")
-    for entry in reversed(st.session_state['chat_history'][:-1]):
-        st.write(f"**Question:** {entry['question']}")
-        st.write(f"**Response:** {entry['response']}")
+    # Input for user question with default value from URL if present
+    try:
+        user_question = st.text_input(
+            "Ask a Question from the Web Page Content (Click on the question and press enter)",
+            value=user_string,  # Default value set to user_string
+            key="user_question"
+        )
+    except:
+        user_question = st.text_input(
+            "Ask a Question from the Web Page Content (Click on the question and press enter)",
+            key="user_question"
+            )
+    if user_question and api_key:
+        user_input(user_question)
+        latest_entry = st.session_state['chat_history'][-1]
+        
         st.write("---")
 
-with st.sidebar:
-    st.title("Menu:")
-    url = st.text_input("Enter the URL of the Web Page", key="url_input")
-    if st.button("Submit & Process", key="process_button") and url and api_key:
-        with st.spinner("Processing..."):
-            web_text = get_web_page_text(url)
-            if web_text:
-                text_chunks = get_text_chunks(web_text)
-                get_vector_store(text_chunks)
-                st.success("Done")
+    if st.button("Clear Chat History"):
+        clear_chat_history()
+        st.success("Chat history cleared!")
 
-# Display the user string if it exists
-if user_string:
-    st.write(f"User redirected from Page 1: {user_string}")
+    if not st.session_state['chat_history']:
+        st.session_state['chat_history'] = load_chat_history()
+
+    if st.session_state['chat_history'][:-1]:
+        st.subheader("Chat History")
+        for entry in reversed(st.session_state['chat_history'][:-1]):
+            st.write(f"**Question:** {entry['question']}")
+            st.write(f"**Response:** {entry['response']}")
+            st.write("---")
