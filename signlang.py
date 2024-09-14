@@ -8,22 +8,6 @@ import math
 import serial
 import time
 
-# Set up the serial communication
-try:
-    arduino = serial.Serial('COM3', 9600, timeout=1)  # Use the correct COM port for your Arduino
-except Exception as e:
-    st.error(f"Error connecting to Arduino: {e}")
-
-def send_word_made():
-    if arduino.is_open:
-        arduino.write(b'wordMade')  # Send the wordMade command to Arduino
-        return "Sent wordMade to Arduino"
-
-def reset_word_made():
-    if arduino.is_open:
-        arduino.write(b'resetWordMade')  # Send the resetWordMade command
-        return "Sent resetWordMade to Arduino"
-
 # Initialize the Hand Detector
 hd = HandDetector(maxHands=1)
 hd2 = HandDetector(maxHands=1)
@@ -40,6 +24,7 @@ def load_sign_model():
 model = load_sign_model()
 offset = 29
 
+st.session_state['string'] = ''
 # Application class adapted for Streamlit
 class Application:
     def __init__(self):
@@ -143,9 +128,9 @@ class Application:
                                 cv2.circle(white, (self.pts[i][0] + os, self.pts[i][1] + os1), 2, (0, 0, 255), 1)
 
                             res=white
-                            print(send_word_made())
                             try:
                                 self.predict(res)
+
                                 predicted_char_placeholder.write(f"Predicted character: {self.current_symbol}")
                                 current_string_placeholder.write(f"Current string: {self.str}")
                                 if self.str:
@@ -619,15 +604,18 @@ class Application:
 
 
         if ch1=="next" and self.prev_char!="next":
+
             if self.ten_prev_char[(self.count-2)%10]!="next":
                 if self.ten_prev_char[(self.count-2)%10]=="Backspace":
                     self.str=self.str[0:-1]
                 else:
                     if self.ten_prev_char[(self.count - 2) % 10] != "Backspace":
                         self.str = self.str + self.ten_prev_char[(self.count-2)%10]
+
             else:
                 if self.ten_prev_char[(self.count - 0) % 10] != "Backspace":
                     self.str = self.str + self.ten_prev_char[(self.count - 0) % 10]
+                
 
 
         if ch1=="  " and self.prev_char!="  ":
@@ -646,7 +634,6 @@ class Application:
             self.word=word
 
 
-
     def destructor(self):
         # reset_word_made()
         self.vs.release()
@@ -659,7 +646,6 @@ st.title("Sign Language to Text Conversion")
 # Create an instance of the Application class
 app = Application()
 if st.button('Restart Camera'):
-    arduino.close()
     app.video_stream()
     
     
