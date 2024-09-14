@@ -5,7 +5,24 @@ from keras.models import load_model # type: ignore
 from cvzone.HandTrackingModule import HandDetector
 from PIL import Image
 import math
+import serial
+import time
 
+# Set up the serial communication
+try:
+    arduino = serial.Serial('COM3', 9600, timeout=1)  # Use the correct COM port for your Arduino
+except Exception as e:
+    st.error(f"Error connecting to Arduino: {e}")
+
+def send_word_made():
+    if arduino.is_open:
+        arduino.write(b'wordMade')  # Send the wordMade command to Arduino
+        return "Sent wordMade to Arduino"
+
+def reset_word_made():
+    if arduino.is_open:
+        arduino.write(b'resetWordMade')  # Send the resetWordMade command
+        return "Sent resetWordMade to Arduino"
 
 # Initialize the Hand Detector
 hd = HandDetector(maxHands=1)
@@ -50,6 +67,7 @@ class Application:
 
         
     def video_stream(self):
+        # reset_word_made()
         
         # Layout for Streamlit
         col1, col2 = st.columns([1.5,1])
@@ -125,13 +143,12 @@ class Application:
                                 cv2.circle(white, (self.pts[i][0] + os, self.pts[i][1] + os1), 2, (0, 0, 255), 1)
 
                             res=white
+                            print(send_word_made())
                             try:
                                 self.predict(res)
                                 predicted_char_placeholder.write(f"Predicted character: {self.current_symbol}")
                                 current_string_placeholder.write(f"Current string: {self.str}")
                                 if self.str:
-                                    self.vs.release()
-                                    cv2.destroyAllWindows()
                                     button1.markdown(
                                                 f"""
                                                 <style>
@@ -615,7 +632,7 @@ class Application:
 
         if ch1=="  " and self.prev_char!="  ":
             self.str = self.str + "  "
-
+        # send_word_made()
         self.prev_char=ch1
         self.current_symbol=ch1
         self.count += 1
@@ -631,6 +648,7 @@ class Application:
 
 
     def destructor(self):
+        # reset_word_made()
         self.vs.release()
         cv2.destroyAllWindows()
 
@@ -641,7 +659,9 @@ st.title("Sign Language to Text Conversion")
 # Create an instance of the Application class
 app = Application()
 if st.button('Restart Camera'):
+    arduino.close()
     app.video_stream()
+    
     
 app.video_stream()
     

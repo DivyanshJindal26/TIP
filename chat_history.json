@@ -1,6 +1,6 @@
 [
     {
-        "question": "what is message reaction",
-        "response": "Message reaction refers to the reactions added to a message. In Atlas Documentation, there are several tags related to message reactions:\n\n1. {message.addReaction;emoji;message}: This tag adds a reaction to a message. The emoji to be added as the reaction is provided as an argument.\n\n2. {message.removeReaction;emoji;user;message}: This tag removes a reaction from a message. The emoji to be removed is provided as an argument.\n\n3. {message.removeReactions;emoji;message}: This tag removes all reactions from a message, optionally for a specific emoji.\n\n4. {message.reactions}: This tag gets a list of reactions from a message. It returns an array of objects, each object representing a reaction with its count, whether the bot has reacted with this emoji, and the emoji details (id, whether it's animated, and its name)."
+        "question": "hello",
+        "response": "Hello! How can I assist you today?"
     }
 ]

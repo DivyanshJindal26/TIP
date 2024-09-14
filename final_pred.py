@@ -5,7 +5,7 @@ import cv2
 import os, sys
 import traceback
 import pyttsx3
-from keras.models import load_model
+from keras.models import load_model # type: ignore
 from cvzone.HandTrackingModule import HandDetector
 from string import ascii_uppercase
 import enchant
