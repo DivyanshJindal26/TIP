@@ -9,7 +9,7 @@ import json
 from langchain.embeddings.base import Embeddings
 
 # Set your OpenRouter API key here
-api_key = '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'
+api_key =''
 
 st.markdown("""## RAG CHATBOT """)
 
