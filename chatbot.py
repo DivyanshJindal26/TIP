@@ -153,24 +153,25 @@ def save_link(link):
         json.dump(link,f,indent=4)
 
 # Main function
-st.header("Ask me Anything....")
 
 
-with st.sidebar:
-    st.title("Menu:")
-    link = load_link()[0]
-    if link:
-        url = st.text_input("Enter the URL of the Web Page", key="url_input", value=link)
-    else:
-        url = st.text_input("Enter the URL of the Web Page", key="url_input")
-    if st.button("Submit & Process", key="process_button") and url and api_key:
-        with st.spinner("Processing..."):
-            web_text = get_web_page_text(url)
-            if web_text:
-                text_chunks = get_text_chunks(web_text)
-                get_vector_store(text_chunks)
-                st.success("Done")
-                save_link(url)
+with st.spinner("Loading..."):
+    st.header("Ask me Anything....")
+    with st.sidebar:
+        st.title("Menu:")
+        link = load_link()[0]
+        if link:
+            url = st.text_input("Enter the URL of the Web Page", key="url_input", value=link)
+        else:
+            url = st.text_input("Enter the URL of the Web Page", key="url_input")
+        if st.button("Submit & Process", key="process_button") and url and api_key:
+            with st.spinner("Processing..."):
+                web_text = get_web_page_text(url)
+                if web_text:
+                    text_chunks = get_text_chunks(web_text)
+                    get_vector_store(text_chunks)
+                    st.success("Done")
+                    save_link(url)
 
 with st.spinner("Loading..."):
     # Input for user question with default value from URL if present

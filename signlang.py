@@ -16,6 +16,7 @@ st.set_page_config(
     page_icon="👐",  # Optional: Set a favicon (emoji or image)
     layout="centered",  # Optional: Sets layout to centered or wide
 )
+
 # Load the model
 @st.cache_resource
 def load_sign_model():
@@ -639,9 +640,9 @@ class Application:
         self.vs.release()
         cv2.destroyAllWindows()
 
-
-# Streamlit page setup
-st.title("Sign Language to Text Conversion")
+with st.spinner('Loading...'):
+    # Streamlit page setup
+    st.title("Sign Language to Text Conversion")
 
 # Create an instance of the Application class
 app = Application()
@@ -650,4 +651,3 @@ if st.button('Restart Camera'):
     
     
 app.video_stream()
-    

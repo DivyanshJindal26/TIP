@@ -1,6 +1,22 @@
 [
     {
-        "question": "hello",
-        "response": "Hello! How can I assist you today?"
+        "question": "summarise it",
+        "response": "West Bengal Chief Minister Mamata Banerjee has urged protesting doctors to return to work and engage in talks with the government to address their demands. The doctors have been protesting since a trainee doctor was raped and murdered at RG Kar Medical College and Hospital in Kolkata last month. They have demanded a live-streamed meeting, which Banerjee has refused, citing that the issue is being heard in the Supreme Court. Banerjee has assured the doctors that the government will look into their demands and take action against those found guilty. She also urged the Central Bureau of Investigation to expedite the investigation into the rape and murder case.\n"
+    },
+    {
+        "question": "summarise it",
+        "response": "The Indian Institute of Technology (IIT) Mandi has developed an innovative method to monitor the health of ageing bridges using traffic data. The research team, led by Dr Subhamoy Sen, has created a digital model of the bridge that predicts how different traffic patterns impact various parts of the bridge over time. This helps experts identify the areas most susceptible to damage. Fatigue-sensitive sensors are then installed at key locations to monitor stress and vibrations. This method reduces costs, aids quick safety decisions, and allows for rapid assessments after events like earthquakes or floods. It also minimises the need for extensive traffic management during inspections."
+    },
+    {
+        "question": "who lead the reserarch team?",
+        "response": "The research team was led by Dr Subhamoy Sen, Associate Professor, School of Civil and Environmental Engineering at the Indian Institute of Technology Mandi."
+    },
+    {
+        "question": "who is this person?",
+        "response": "The person mentioned in the text is Dr Subhamoy Sen, an Associate Professor at the School of Civil and Environmental Engineering at the Indian Institute of Technology Mandi. He led a research team in developing an innovative method to monitor the health of ageing bridges using traffic data."
+    },
+    {
+        "question": "can you tell me more about dr subhamoy sen",
+        "response": "Dr. Subhamoy Sen is an Associate Professor at the School of Civil and Environmental Engineering at the Indian Institute of Technology (IIT) Mandi. He has been involved in innovative research, including the development of a method to monitor the health of ageing bridges using traffic data. This research, which was published in the prestigious journal, Structural Health Monitoring, focuses on the most critical areas of a bridge, enhancing safety and efficiency. Dr. Sen's approach uses a digital model of the bridge to predict how different traffic patterns impact various parts of the bridge over time, helping experts identify the areas most susceptible to damage. His research has practical benefits, including reducing costs, ensuring bridge safety and longevity, and aiding in quicker safety decisions following events like earthquakes or floods."
     }
 ]
